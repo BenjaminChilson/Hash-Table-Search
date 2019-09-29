@@ -19,7 +19,7 @@ void insertInHash(int data, int index, DataItem **hashTable, int size);
 void fillHashTable(int size, int *dataArray, DataItem **hashTable);
 void printHashTable(DataItem **hashTable, int size);
 SolutionStruct *findSum(int target, int *dataArray, int size, DataItem **hashTable);
-void readSolutionSet(SolutionStruct **solutionSet);
+void readSolutionSet(SolutionStruct *solutionSet);
 
 int main(void){
 
@@ -33,7 +33,7 @@ int main(void){
   printHashTable(hashTable, size);
 
   SolutionStruct* solutionSet = findSum(8, dataArray, size, hashTable);
-  //readSolutionSet(solutionSet);
+  readSolutionSet(solutionSet);
 
   return 0;
 }
@@ -97,42 +97,48 @@ void printHashTable(DataItem **hashTable, int size){
 }
 
 SolutionStruct *findSum(int target, int *dataArray, int size, DataItem **hashTable){
-  SolutionStruct *solutionSet = malloc(sizeof(SolutionStruct));
-  solutionSet = NULL;
+  SolutionStruct *solutionSet = NULL;
+
   for(int i = 0; i <= size - 1; i++){
-    printf("%d of %d\n", i, size - 1);
+    printf("dataArray[%d] is %d\n", i, dataArray[i]);
     int lookup = target - dataArray[i];
-
+    printf("complement of %d is %d\n", dataArray[i], lookup);
     int key = lookup % size;
+    printf("key of complement is %d\n", key);
 
-    DataItem *currentDataItem = hashTable[key];
-    while(currentDataItem != NULL){
-      if(currentDataItem->data == target && currentDataItem->index != i){
-        SolutionStruct *newSolution = malloc(sizeof(SolutionStruct));
+    if(key >= 0 && key <= size - 1){
+      DataItem *currentDataItem = hashTable[key];
+      while(currentDataItem != NULL){
+        printf("looking at linked list of hashTable[%d]\n", key);
+        printf("currentDataItem->data = %d\n", currentDataItem->data);
+        if(currentDataItem->data == lookup && currentDataItem->index != i){
+          printf("Adding solution to solutionSet\n");
+          SolutionStruct *newSolution = malloc(sizeof(SolutionStruct));
 
-        newSolution->sourceIndex = i;
-        newSolution->targetsIndex = currentDataItem->index;
-        newSolution->nextSolution = solutionSet;
+          newSolution->sourceIndex = i;
+          newSolution->targetsIndex = currentDataItem->index;
+          newSolution->nextSolution = solutionSet;
 
-        solutionSet = newSolution;
+          solutionSet = newSolution;
 
+        }
+
+        currentDataItem = currentDataItem->nextItem;
       }
-
-      currentDataItem = currentDataItem->nextItem;
     }
   }
 
   return solutionSet;
 }
 
-void readSolutionSet(SolutionStruct **solutionSet){
+void readSolutionSet(SolutionStruct *solutionSet){
   printf("-----Solution Set-----\n");
-  if(*solutionSet == NULL){
+  if(solutionSet == NULL){
     printf("NO SOLUTIONS WERE FOUND\n");
     return;
   }
 
-  SolutionStruct *currentSolution = *solutionSet;
+  SolutionStruct *currentSolution = solutionSet;
   while(currentSolution != NULL){
     printf("[%d, %d]\n", currentSolution->sourceIndex, currentSolution->targetsIndex);
 
